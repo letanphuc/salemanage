@@ -1,4 +1,22 @@
 <html>
+	<script>
+	
+	function post(idItem){
+    	$.post( "additem.php",  { name: $("#itemname").val()} )
+        .done(function( data ) {
+        	history.go(0);
+        	console.log(data);
+        });
+	}
+
+	$(document).ready(function(){
+		$("#button_add").click(function(){
+			post(3);
+		});
+
+	});
+
+	</script>
 
 	<head>
 		<title>My first PHP Page</title>
@@ -17,28 +35,6 @@
 		    <input type="button" id="button_add" class="btn btn-info" value="Add"</input>
 		  </li>
 		</form>
-	
-	<script>
-	
-	function post(idItem){
-    	$.post( "additem.php",  { name: $("#itemname").val()} )
-        .done(function( data ) {
-        	history.go(0);
-        	console.log(data);
-        });
-	}
 
-	$(document).ready(function(){
-		$("#button_add").click(function(){
-			post(3);
-		});
-
-	});
-
-
-
-
-
-	</script>
 	</body>
 </html>

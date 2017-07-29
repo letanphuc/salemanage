@@ -1,7 +1,4 @@
 <html>
-	<?php
-	include "database.php";
-	?>
 
 	<head>
 		<title>My first PHP Page</title>
@@ -12,40 +9,16 @@
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	</head>
 
-	<body>
-		<h2> Press following buttons </h2>
-		<ul class="list-group">
-			<?php
-				
-				GetDataBase();
 
-				$query = "SELECT * FROM SalesItems";
-				$result = mysql_query($query);
+	<?php
+	include "database.php";
+	?>
 
-				echo PHP_EOL;				
-				while($row = mysql_fetch_array($result))
-				{
-					echo '<form>';
-					echo '<li class="list-group-item">';
-					echo '<input type="button" id="button_' . $row['id'] . '" class="btn btn-info" href="javascript: onclick("' . $row['name'] .'");" value="' . $row['name'] . '"</input>';
-					echo '</li>';
-					
-					echo '</form>';
-					echo PHP_EOL;
-				}
-				mysql_close();
-			?>
-
-		</ul>
-	
 	<script>
-	
+	var button_id = 0;
+
 	function post(idItem){
-    	$.post( "addrecord.php",  { id: idItem} )
-        .done(function( data ) {
-        	console.log(data);
-        	history.go(0);
-        });
+		button_id = idItem;
 	}
 
 	$(document).ready(function(){
@@ -70,12 +43,74 @@
 			mysql_close();
 		?>
 
-	});
+		$("#modal_close").click(function()
+		{
+        	var itemcount = $("#number").val();
+        	var itemtakeaway = $("#takeaway").is(':checked');
+			console.log(button_id);
+			console.log(itemcount);
+			console.log(itemtakeaway);
 
-
-
-
-
+        	$.post( "addrecord.php",  { id: button_id, count: itemcount, takeaway: itemtakeaway} )
+	        	.done(function( data ) {
+	        	console.log(data);
+	        });
+    	});
+    });
 	</script>
+
+	<body>
+		<h2> Press following buttons </h2>
+		<ul class="list-group">
+			<?php
+				
+				GetDataBase();
+
+				$query = "SELECT * FROM SalesItems";
+				$result = mysql_query($query);
+
+				echo PHP_EOL;				
+				while($row = mysql_fetch_array($result))
+				{
+					$id = $row['id'];
+					$name = $row['name'];
+
+					echo "<li class=\"list-group-item\"><input type=\"button\" id=\"button_$id\" class=\"btn btn-info\" value=\"$name\" data-toggle=\"modal\" data-target=\"#confirm_modal\"</input></li>";
+
+				
+					echo PHP_EOL;
+				}
+				mysql_close();
+			?>
+
+		</ul>
+	
+	
+
+	<div id="confirm_modal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Add a bill</h4>
+				</div>
+					<form>
+						<h5> Take away ? </h5>
+						<input type="checkbox" id="takeaway"></input>
+						<h5> Take away ? </h5>
+						<input id="number" value="1" type="number" min="1"></input>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal" id="modal_close">OK</button>
+				</div>
+
+
+			</div>
+		</div>
+	</div>
+
+
+	
 	</body>
 </html>

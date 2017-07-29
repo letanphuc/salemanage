@@ -38,6 +38,8 @@
 					<th>ID</th>
 					<th>Name</th>
 					<th>Time</th>
+					<th>Count</th>
+					<th>Take Away</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -47,27 +49,25 @@
 					$listIDs = array();
 					$listNames = array();
 					$listTimes = array();
+					$listCount = array();
+					$listTakeAway = array();
 
 					GetDataBase();
 					$currentdate = date('Y-m-d');
 					$query = "SELECT * FROM Records WHERE time BETWEEN '$currentdate 00:00:00' AND '$currentdate 23:59:59'";
-					// $query = "SELECT * FROM Records";
 					$result = mysql_query($query);
 
 					# prepare data
 					while($row = mysql_fetch_array($result))
 					{
-						$itemid = $row['itemID'];
-						$time = $row['time'];
 						
-						array_push($listIDs, $itemid);
-						array_push($listTimes, $time);
+						array_push($listIDs, $row['itemID']);
+						array_push($listTimes, $row['time']);
+						array_push($listCount, $row['count']);
+						array_push($listTakeAway, $row['takeaway']);
 
 					}
 					$countItems = count($listIDs);
-
-					mysql_close();
-					GetDataBase();
 
 					foreach($listIDs as $id)
 					{
@@ -85,11 +85,26 @@
 						$itemid = $listIDs[$i];
 						$itemname = $listNames[$i];
 						$itemtime = $listTimes[$i];
+						$itemcount = $listCount[$i];
+						$itemtakeaway = $listTakeAway[$i];
 
 						echo "<tr>";
 						echo "<td>$i</td>";
 						echo "<td>$itemname</td>";
 						echo "<td>$itemtime</td>";
+						echo "<td>$itemcount</td>";
+						
+						echo "<td>";
+						if ($itemtakeaway != 0)
+						{
+							echo '<input type="checkbox" checked="checked" readonly></input>';
+						}
+						else
+						{
+							echo '<input type="checkbox" readonly></input>';
+						}
+						echo "</td>";
+
 						echo "</tr>";
 						echo PHP_EOL;
 					}
