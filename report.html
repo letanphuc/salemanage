@@ -1,0 +1,118 @@
+<html>
+	<?php
+	include "database.php";
+
+	function GetItemName($itemid)
+	{
+		$getname = "SELECT * FROM SalesItems WHERE id = ". $itemid;
+		$resultname = mysql_query($getquery);
+		$rowname = mysql_fetch_array($resultname);
+
+		echo $getname;
+		while($row = mysql_fetch_array($result))
+		{
+			echo 'test';
+			$itemname = $row['id'];
+		}
+
+		return $itemname;
+	}
+
+	$countItems = 0;
+	?>
+
+	<head>
+		<title>My first PHP Page</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	</head>
+
+	<body>
+		<ul class="list-group">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Name</th>
+					<th>Time</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php
+					global $countItems;
+
+					$listIDs = array();
+					$listNames = array();
+					$listTimes = array();
+
+					GetDataBase();
+					$currentdate = date('Y-m-d');
+					$query = "SELECT * FROM Records WHERE time BETWEEN '$currentdate 00:00:00' AND '$currentdate 23:59:59'";
+					// $query = "SELECT * FROM Records";
+					$result = mysql_query($query);
+
+					# prepare data
+					while($row = mysql_fetch_array($result))
+					{
+						$itemid = $row['itemID'];
+						$time = $row['time'];
+						
+						array_push($listIDs, $itemid);
+						array_push($listTimes, $time);
+
+					}
+					$countItems = count($listIDs);
+
+					mysql_close();
+					GetDataBase();
+
+					foreach($listIDs as $id)
+					{
+						$query = "SELECT * FROM SalesItems WHERE id = " . $id;
+						$result = mysql_query($query);
+						$row = mysql_fetch_array($result);
+						array_push($listNames, $row['name']);
+					}
+					mysql_close();
+
+					# generate table
+					
+					for ($i = 0; $i < count($listIDs); $i++)
+					{
+						$itemid = $listIDs[$i];
+						$itemname = $listNames[$i];
+						$itemtime = $listTimes[$i];
+
+						echo "<tr>";
+						echo "<td>$i</td>";
+						echo "<td>$itemname</td>";
+						echo "<td>$itemtime</td>";
+						echo "</tr>";
+						echo PHP_EOL;
+					}
+				?>
+				</tbody>
+			</table>
+			<h2> Total is </h2>
+			<?php
+				global $countItems;
+				echo $countItems;
+			?>
+		</ul>
+	
+	<script>
+	
+	function post(idItem){
+    	$.post( "addrecord.php",  { id: idItem} )
+        .done(function( data ) {
+        	console.log(data)
+        });
+	}
+
+
+	</script>
+	</body>
+</html>

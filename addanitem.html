@@ -1,0 +1,44 @@
+<html>
+
+	<head>
+		<title>My first PHP Page</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	</head>
+
+	<body>
+		<h2> Add an item </h2>		
+		<form accept-charset="ISO-8859-1">
+		  <input type="text" class="form-control" id="itemname">
+		  <li class="list-group-item">
+		    <input type="button" id="button_add" class="btn btn-info" value="Add"</input>
+		  </li>
+		</form>
+	
+	<script>
+	
+	function post(idItem){
+    	$.post( "additem.php",  { name: $("#itemname").val()} )
+        .done(function( data ) {
+        	history.go(0);
+        	console.log(data);
+        });
+	}
+
+	$(document).ready(function(){
+		$("#button_add").click(function(){
+			post(3);
+		});
+
+	});
+
+
+
+
+
+	</script>
+	</body>
+</html>

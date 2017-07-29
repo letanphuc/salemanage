@@ -1,0 +1,81 @@
+<html>
+	<?php
+	include "database.php";
+	?>
+
+	<head>
+		<title>My first PHP Page</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	</head>
+
+	<body>
+		<h2> Press following buttons </h2>
+		<ul class="list-group">
+			<?php
+				
+				GetDataBase();
+
+				$query = "SELECT * FROM SalesItems";
+				$result = mysql_query($query);
+
+				echo PHP_EOL;				
+				while($row = mysql_fetch_array($result))
+				{
+					echo '<form>';
+					echo '<li class="list-group-item">';
+					echo '<input type="button" id="button_' . $row['id'] . '" class="btn btn-info" href="javascript: onclick("' . $row['name'] .'");" value="' . $row['name'] . '"</input>';
+					echo '</li>';
+					
+					echo '</form>';
+					echo PHP_EOL;
+				}
+				mysql_close();
+			?>
+
+		</ul>
+	
+	<script>
+	
+	function post(idItem){
+    	$.post( "addrecord.php",  { id: idItem} )
+        .done(function( data ) {
+        	console.log(data);
+        	history.go(0);
+        });
+	}
+
+	$(document).ready(function(){
+		<?php
+				
+			GetDataBase();
+
+			$query = "SELECT * FROM SalesItems";
+			$result = mysql_query($query);
+
+			echo PHP_EOL;				
+			while($row = mysql_fetch_array($result))
+			{
+				$id = $row['id'];
+				$name = $row['name'];
+
+				echo "$(\"#button_$id\").click(function(){", PHP_EOL;
+				echo "	post($id);", PHP_EOL;
+				echo "});", PHP_EOL;
+				echo PHP_EOL;
+			}
+			mysql_close();
+		?>
+
+	});
+
+
+
+
+
+	</script>
+	</body>
+</html>
