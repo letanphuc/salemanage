@@ -1,114 +1,90 @@
 <html>
 
 	<head>
-		<title>My first PHP Page</title>
+		<title>Sale Manament</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	</head>
-
-
 	<?php
 	include "database.php";
+	$all_items = GetListOfItems();
 	?>
 
 	<script>
-	var button_id = 0;
+		var button_id = 0;
 
-	function post(idItem){
-		button_id = idItem;
-	}
+		$(document).ready(function(){
 
-	$(document).ready(function(){
-		<?php
-				
-			GetDataBase();
-
-			$query = "SELECT * FROM SalesItems";
-			$result = mysql_query($query);
-
-			echo PHP_EOL;				
-			while($row = mysql_fetch_array($result))
+			$("#modal_close").click(function()
 			{
-				$id = $row['id'];
-				$name = $row['name'];
+				var itemcount = $("#number").val();
+				var itemtakeaway = $("#takeaway").is(':checked');
+				console.log(button_id);
+				console.log(itemcount);
+				console.log(itemtakeaway);
 
-				echo "$(\"#button_$id\").click(function(){", PHP_EOL;
-				echo "	post($id);", PHP_EOL;
-				echo "});", PHP_EOL;
-				echo PHP_EOL;
+				$.post( "addrecord.php",  { id: button_id, count: itemcount, takeaway: itemtakeaway} )
+					.done(function( data ) {
+					console.log(data);
+				});
+
+				history.go(0);
+			});
+
+			<?php
+			global $all_items;
+			foreach ($all_items as $item)
+			{
+				$id = $item['id'];
+				$name = $item['name'];
+				echo "$(\"#button_$id\").click(function(){button_id = $id;$(\"#confirm_modal\").modal('show');});", PHP_EOL;
 			}
-			mysql_close();
-		?>
-
-		$("#modal_close").click(function()
-		{
-        	var itemcount = $("#number").val();
-        	var itemtakeaway = $("#takeaway").is(':checked');
-			console.log(button_id);
-			console.log(itemcount);
-			console.log(itemtakeaway);
-
-        	$.post( "addrecord.php",  { id: button_id, count: itemcount, takeaway: itemtakeaway} )
-	        	.done(function( data ) {
-	        	console.log(data);
-	        });
-    	});
-    });
+			?>
+		});
 	</script>
 
+
+
 	<body>
+
 		<h2> Press following buttons </h2>
-		<ul class="list-group">
-			<?php
-				
-				GetDataBase();
-
-				$query = "SELECT * FROM SalesItems";
-				$result = mysql_query($query);
-
-				echo PHP_EOL;				
-				while($row = mysql_fetch_array($result))
-				{
-					$id = $row['id'];
-					$name = $row['name'];
-
-					echo "<li class=\"list-group-item\"><input type=\"button\" id=\"button_$id\" class=\"btn btn-info\" value=\"$name\" data-toggle=\"modal\" data-target=\"#confirm_modal\"</input></li>";
-
-				
-					echo PHP_EOL;
-				}
-				mysql_close();
-			?>
+		<ul class="list-group" id="list_of_buttons">
+		
+		<?php
+		global $all_items;
+		foreach ($all_items as $item)
+		{
+			$id = $item['id'];
+			$name = $item['name'];
+			echo "<li class=\"list-group-item\"><input type=\"button\" id=\"button_$id\" class=\"btn btn-info\" value=\"$name\"</input></li>";
+		}
+		?>
 
 		</ul>
 	
-	
-
-	<div id="confirm_modal" class="modal fade" role="dialog">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal">&times;</button>
-					<h4 class="modal-title">Add a bill</h4>
+		<div id="confirm_modal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Add a bill</h4>
+					</div>
+						<form>
+							<h5> Take away ? </h5>
+							<input type="checkbox" id="takeaway"></input>
+							<h5> Take away ? </h5>
+							<input id="number" value="1" type="number" min="1"></input>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal" id="modal_close">OK</button>
+					</div>
 				</div>
-					<form>
-						<h5> Take away ? </h5>
-						<input type="checkbox" id="takeaway"></input>
-						<h5> Take away ? </h5>
-						<input id="number" value="1" type="number" min="1"></input>
-					</form>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal" id="modal_close">OK</button>
-				</div>
-
-
 			</div>
 		</div>
-	</div>
 
 
 	

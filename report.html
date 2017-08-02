@@ -1,26 +1,4 @@
 <html>
-	<?php
-	include "database.php";
-
-	function GetItemName($itemid)
-	{
-		$getname = "SELECT * FROM SalesItems WHERE id = ". $itemid;
-		$resultname = mysql_query($getquery);
-		$rowname = mysql_fetch_array($resultname);
-
-		echo $getname;
-		while($row = mysql_fetch_array($result))
-		{
-			echo 'test';
-			$itemname = $row['id'];
-		}
-
-		return $itemname;
-	}
-
-	$countItems = 0;
-	?>
-
 	<head>
 		<title>My first PHP Page</title>
 		<meta charset="utf-8">
@@ -28,106 +6,134 @@
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	</head>
 
-	<body>
-		<ul class="list-group">
+	<?php
+		include "database.php";
+		$all_items = GetListOfItems();
+		$chosendate = date('Y-m-d');
+		if (!empty($_POST["chosendate"])) 
+		{
+			$chosendate = $_POST["chosendate"];
+		}
+		$report = GetReport($chosendate);
+		$history = GetHistory($chosendate);
+	?>
+
+	<script type="text/javascript">
+	google.charts.load('current', {packages: ['corechart', 'bar']});
+	google.charts.load('current', {packages: ['corechart', 'line']});
+	google.charts.setOnLoadCallback(drawHistory);
+	google.charts.setOnLoadCallback(drawBasic);
+
+
+	function drawHistory()
+	{
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', 'date');
+		data.addColumn('number', 'number');
+		data.addRows([
+			<?php
+			global $history;
+			foreach ($history as $key => $value) 
+			{
+				echo "['$key',$value],";
+			}
+			?>
+		]);
+
+		var options = {
+			hAxis: {
+				title: 'Date'
+			},
+			vAxis: {
+				title: 'Number'
+			}
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('chart_div2'));
+		chart.draw(data, options);
+	}
+
+	function drawBasic() {
+
+	    var data = new google.visualization.DataTable();
+	    data.addColumn('string', 'Type');
+	    data.addColumn('number', 'number');
+
+	    data.addRows([
+	        <?php
+	        global $report;
+			foreach ($report as $key => $value) {
+				$count = $value['count'];
+				$takeawaycount = $value['takeawaycount'];
+				$name = GetItemName($key);
+				echo "[{f: '$name'}, $count],", PHP_EOL;
+			}
+	        ?>
+	    ]);
+
+	    var options = {
+	        title: 'Report',
+	        hAxis: {
+	        },
+	        vAxis: {
+	            title: 'Number of items'
+	        }
+	    };
+
+	    var chart = new google.visualization.ColumnChart(
+	        document.getElementById('chart_div'));
+
+	    chart.draw(data, options);
+	}
+
+
+	</script>
+		<form action="report.html" method="post">
+			Chose date:
+			<input type="date" name="chosendate" value="<?php echo $chosendate; ?>">
+			<input type="submit">
+		</form>
+
+
 		<table class="table">
 			<thead>
 				<tr>
-					<th>ID</th>
 					<th>Name</th>
-					<th>Time</th>
 					<th>Count</th>
 					<th>Take Away</th>
 				</tr>
 			</thead>
 			<tbody>
 				<?php
-					global $countItems;
+					global $report;
 
-					$listIDs = array();
-					$listNames = array();
-					$listTimes = array();
-					$listCount = array();
-					$listTakeAway = array();
-
-					GetDataBase();
-					$currentdate = date('Y-m-d');
-					$query = "SELECT * FROM Records WHERE time BETWEEN '$currentdate 00:00:00' AND '$currentdate 23:59:59'";
-					$result = mysql_query($query);
-
-					# prepare data
-					while($row = mysql_fetch_array($result))
-					{
-						
-						array_push($listIDs, $row['itemID']);
-						array_push($listTimes, $row['time']);
-						array_push($listCount, $row['count']);
-						array_push($listTakeAway, $row['takeaway']);
-
+					foreach ($report as $key => $value) {
+						$count = $value['count'];
+						$takeawaycount = $value['takeawaycount'];
+						$name = GetItemName($key);
+						echo "<tr> <td>$name</td> <td>$count</td> <td>($takeawaycount)</td> </tr>", PHP_EOL;
 					}
-					$countItems = count($listIDs);
 
-					foreach($listIDs as $id)
-					{
-						$query = "SELECT * FROM SalesItems WHERE id = " . $id;
-						$result = mysql_query($query);
-						$row = mysql_fetch_array($result);
-						array_push($listNames, $row['name']);
-					}
-					mysql_close();
-
-					# generate table
-					
-					for ($i = 0; $i < count($listIDs); $i++)
-					{
-						$itemid = $listIDs[$i];
-						$itemname = $listNames[$i];
-						$itemtime = $listTimes[$i];
-						$itemcount = $listCount[$i];
-						$itemtakeaway = $listTakeAway[$i];
-
-						echo "<tr>";
-						echo "<td>$i</td>";
-						echo "<td>$itemname</td>";
-						echo "<td>$itemtime</td>";
-						echo "<td>$itemcount</td>";
-						
-						echo "<td>";
-						if ($itemtakeaway != 0)
-						{
-							echo '<input type="checkbox" checked="checked" readonly></input>';
-						}
-						else
-						{
-							echo '<input type="checkbox" readonly></input>';
-						}
-						echo "</td>";
-
-						echo "</tr>";
-						echo PHP_EOL;
-					}
 				?>
-				</tbody>
-			</table>
-			<h2> Total is </h2>
-			<?php
-				global $countItems;
-				echo $countItems;
-			?>
-		</ul>
-	
-	<script>
-	
-	function post(idItem){
-    	$.post( "addrecord.php",  { id: idItem} )
-        .done(function( data ) {
-        	console.log(data)
-        });
-	}
+			</tbody>
+		</table>
+		<h2> Total is 
+		<?php
+			global $report;
+			$total = 0;
+			foreach ($report as $key => $value) 
+			{
+				$total += $value['count'];
+			}
+			echo $total;
+		?>
+		</h2>
 
-
-	</script>
+		<div id="chart_div2"></div>
+		<div id="chart_div"></div>
+		
 	</body>
 </html>
