@@ -114,4 +114,21 @@
 		}
 	}
 
+	function GetReporTime($date)
+	{
+		$report = array();
+		GetDataBase();
+
+		$query = "SELECT * FROM Records WHERE time BETWEEN '$date 00:00:00' AND '$date 23:59:59'";
+		$result = mysql_query($query);
+
+		while($row = mysql_fetch_array($result))
+		{
+			array_push($report, $row);
+		}
+
+		DatabaseClose();
+		return $report;
+	}
+
 ?>

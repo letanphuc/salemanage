@@ -19,6 +19,7 @@
 		}
 		$report = GetReport($chosendate);
 		$history = GetHistory($chosendate);
+		$report_time = GetReporTime($chosendate);
 	?>
 
 	<script type="text/javascript">
@@ -97,6 +98,37 @@
 			<input type="submit">
 		</form>
 
+
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Time</th>
+					<th>Name</th>
+					<th>Count</th>
+					<th>Take Away</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php
+					global $report_time;
+
+					foreach ($report_time as $key => $value) {
+						$itemID = $value['itemID'];
+
+						$time = $value['time'];
+						$t = new DateTime($time);
+						$time = $t->format('H:i:s');
+
+						$count = $value['count'];
+						$takeaway = $value['takeaway'];
+						$name = GetItemName($itemID);
+
+						echo "<tr> <td>$time</td> <td>$name</td> <td>$count</td> <td>($takeawaycount)</td> </tr>", PHP_EOL;
+					}
+
+				?>
+			</tbody>
+		</table>
 
 		<table class="table">
 			<thead>
